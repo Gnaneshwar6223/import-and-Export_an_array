@@ -27,7 +27,7 @@ const initializeDbAndServer = async () => {
   }
 };
 
-initializeDbAndServe();
+initializeDbAndServer();
 
 const hasPriorityAndStatusProperties = (requestQuery) => {
   return (
@@ -96,7 +96,7 @@ app.get("/todos/", async (request, response) => {
 app.get("/todos/:todoId/", async (request, response) => {
   const { todoId } = request.params;
 
-  const get TodoQuery=`
+  const getTodosQuery=`
     SELECT 
       *
     FROM
@@ -123,16 +123,16 @@ app.put("/todos/:todoId/", async (request, response) => {
   let updateColumn = "";
   const requestBody = request.body;
   switch (true) {
-    case requestBody.status !== undefined:
-      updateColumn="Status";
-      break;
-    case requestBody.priority !== undefined:
-      updateColumn="Priority";
-      break;
-    case requestBody.todo !== undefined:
-      updateColumn="Todo";
-      break;
-  })
+  case requestBody.status !== undefined:
+    updateColumn = "Status";
+    break;
+  case requestBody.priority !== undefined:
+    updateColumn = "Priority";
+    break;
+  case requestBody.todo !== undefined:
+    updateColumn = "Todo";
+    break;
+}
   const previousTodoQuery=`
     SELECT
       *

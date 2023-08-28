@@ -1,25 +1,24 @@
-const express = require("express");
-const { open } = require("sqlite");
+
 const sqlite3 = require("sqlite3");
 const path = require("path");
 
-const databasePath=path.join(__dirname,"todoApplication.db");
+const databasePath = path.join(__dirname, "todoApplication.db");
 
 const app = express();
 
 app.use(express.json());
 
-let database=null;
+let database = null;
 
 const initializeDbAndServer = async () => {
   try {
     database = await open({
-      filename:databasePath,
+      filename: databasePath,
       driver: sqlite3.Database,
     });
 
-    app.listen(3000, () => {
-      console.log("Server is running on http://localhost:3000/");
+    app.listen(3000, () =>
+      console.log("Server Running at http://localhost:3000/")
     );
   } catch (error) {
     console.log(`DB Error: ${error.message}`);
@@ -45,7 +44,7 @@ const hasStatusProperty = (requestQuery) => {
 app.get("/todos/", async (request, response) => {
   let data = null;
   let getTodosQuery = "";
-  const { search_q = "", priority, status} = request.query;
+  const { search_q = "", priority, status } = request.query;
 
   switch (true) {
     case hasPriorityAndStatusProperties(request.query):
@@ -87,7 +86,7 @@ app.get("/todos/", async (request, response) => {
         todo 
       WHERE
         todo LIKE '%${search_q}%';`;
- }
+  }
 
   data = await database.all(getTodosQuery);
   response.send(data);
@@ -96,26 +95,26 @@ app.get("/todos/", async (request, response) => {
 app.get("/todos/:todoId/", async (request, response) => {
   const { todoId } = request.params;
 
-  const getTodosQuery=`
-    SELECT 
+  const getTodoQuery = `
+    SELECT
       *
     FROM
       todo
     WHERE
-      id=${todoId};`;
-  const todo =await database.get(getTodosQuery);
+      id = ${todoId};`;
+  const todo = await database.get(getTodoQuery);
   response.send(todo);
 });
 
-app.post("/todos/",async (request,response)=>{
-  const {id,todo,priority,status}=request.body;
-  const postTodoQuery=`
+app.post("/todos/", async (request, response) => {
+  const { id, todo, priority, status } = request.body;
+  const postTodoQuery = `
   INSERT INTO
-    todo (id,todo,priority,status)
+    todo (id, todo, priority, status)
   VALUES
-    (${id},'${todo}',${priority}','${status}');`;
+    (${id}, '${todo}', '${priority}', '${status}');`;
   await database.run(postTodoQuery);
-  response.send("Todo Successfully Added")
+  response.send("Todo Successfully Added");
 });
 
 app.put("/todos/:todoId/", async (request, response) => {
@@ -123,32 +122,32 @@ app.put("/todos/:todoId/", async (request, response) => {
   let updateColumn = "";
   const requestBody = request.body;
   switch (true) {
-  case requestBody.status !== undefined:
-    updateColumn = "Status";
-    break;
-  case requestBody.priority !== undefined:
-    updateColumn = "Priority";
-    break;
-  case requestBody.todo !== undefined:
-    updateColumn = "Todo";
-    break;
-}
-  const previousTodoQuery=`
+    case requestBody.status !== undefined:
+      updateColumn = "Status";
+      break;
+    case requestBody.priority !== undefined:
+      updateColumn = "Priority";
+      break;
+    case requestBody.todo !== undefined:
+      updateColumn = "Todo";
+      break;
+  }
+  const previousTodoQuery = `
     SELECT
       *
     FROM
       todo
-    WHERE
-      id=${todoId};`;
-  const previousTodo=await database.get(previousTodoQuery);
+    WHERE 
+      id = ${todoId};`;
+  const previousTodo = await database.get(previousTodoQuery);
 
-  const{
+  const {
     todo = previousTodo.todo,
-    priority=previousTodo.priority,
-    status=previousTodo.status,
-  }=request.body;
+    priority = previousTodo.priority,
+    status = previousTodo.status,
+  } = request.body;
 
-  const UpdateTodoQuery=`
+  const updateTodoQuery = `
     UPDATE
       todo
     SET
@@ -156,8 +155,8 @@ app.put("/todos/:todoId/", async (request, response) => {
       priority='${priority}',
       status='${status}'
     WHERE
-      id=${todoId};`;
-      
+      id = ${todoId};`;
+
   await database.run(updateTodoQuery);
   response.send(`${updateColumn} Updated`);
 });
